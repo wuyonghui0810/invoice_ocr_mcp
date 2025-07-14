@@ -1,0 +1,183 @@
+version: '3.8'
+
+services:
+  # 主应用服务
+  invoice-ocr-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: invoice-ocr-mcp
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app/src
+      - MODELSCOPE_CACHE_DIR=/app/cache/modelscope
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env
+    volumes:
+      - ./configs:/app/configs:ro
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - invoice-ocr-network
+
+  # GPU版本服务（可选）
+  invoice-ocr-mcp-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: gpu
+    container_name: invoice-ocr-mcp-gpu
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONPATH=/app/src
+      - MODELSCOPE_CACHE_DIR=/app/cache/modelscope
+      - LOG_LEVEL=INFO
+      - CUDA_VISIBLE_DEVICES=0
+    env_file:
+      - .env
+    volumes:
+      - ./configs:/app/configs:ro
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+      - ./data:/app/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - invoice-ocr-network
+    profiles:
+      - gpu
+
+  # Redis缓存服务
+  redis:
+    image: redis:7-alpine
+    container_name: invoice-ocr-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./configs/redis.conf:/etc/redis/redis.conf:ro
+    command: redis-server /etc/redis/redis.conf
+    restart: unless-stopped
+    networks:
+      - invoice-ocr-network
+    profiles:
+      - cache
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: invoice-ocr-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./configs/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - invoice-ocr-mcp
+    restart: unless-stopped
+    networks:
+      - invoice-ocr-network
+    profiles:
+      - proxy
+
+  # Prometheus监控
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: invoice-ocr-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    restart: unless-stopped
+    networks:
+      - invoice-ocr-network
+    profiles:
+      - monitoring
+
+  # Grafana可视化
+  grafana:
+    image: grafana/grafana:latest
+    container_name: invoice-ocr-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./configs/grafana:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - invoice-ocr-network
+    profiles:
+      - monitoring
+
+# 开发环境配置
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: invoice-ocr-mcp-dev
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # 调试端口
+    environment:
+      - PYTHONPATH=/app/src
+      - LOG_LEVEL=DEBUG
+      - DEV_MODE=true
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+    restart: "no"
+    networks:
+      - invoice-ocr-network
+    profiles:
+      - dev
+
+networks:
+  invoice-ocr-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# 环境变量覆盖
+x-common-environment: &common-environment
+  PYTHONPATH: /app/src
+  MODELSCOPE_CACHE_DIR: /app/cache/modelscope
+  LOG_LEVEL: INFO 

@@ -1,0 +1,325 @@
+# =================
+# Python
+# =================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# =================
+# 虚拟环境
+# =================
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# =================
+# 开发工具
+# =================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =================
+# 测试
+# =================
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# =================
+# Jupyter Notebook
+# =================
+.ipynb_checkpoints
+
+# =================
+# pyenv
+# =================
+.python-version
+
+# =================
+# pipenv
+# =================
+Pipfile.lock
+
+# =================
+# PEP 582
+# =================
+__pypackages__/
+
+# =================
+# Celery
+# =================
+celerybeat-schedule
+celerybeat.pid
+
+# =================
+# SageMath
+# =================
+*.sage.py
+
+# =================
+# 环境变量
+# =================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =================
+# mypy
+# =================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# =================
+# Pyre
+# =================
+.pyre/
+
+# =================
+# 项目特定文件
+# =================
+
+# 日志文件
+logs/
+*.log
+
+# 缓存目录
+cache/
+.cache/
+
+# 数据目录
+data/
+uploads/
+downloads/
+temp/
+tmp/
+
+# 模型文件
+models/
+*.pth
+*.pt
+*.ckpt
+*.bin
+
+# 配置文件（包含敏感信息）
+.env
+config.json
+secrets.yaml
+
+# 结果文件
+results/
+output/
+*.json
+*.csv
+*.xlsx
+
+# =================
+# ModelScope缓存
+# =================
+.modelscope/
+modelscope_cache/
+
+# =================
+# 图像文件
+# =================
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.webp
+
+# 除了测试fixtures中的样本图像
+!tests/fixtures/**/*.jpg
+!tests/fixtures/**/*.jpeg
+!tests/fixtures/**/*.png
+
+# =================
+# 文档生成
+# =================
+docs/_build/
+docs/build/
+site/
+
+# =================
+# Docker
+# =================
+.dockerignore
+
+# =================
+# 数据库
+# =================
+*.db
+*.sqlite
+*.sqlite3
+
+# =================
+# Redis
+# =================
+dump.rdb
+
+# =================
+# 系统文件
+# =================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =================
+# SSL证书
+# =================
+ssl/
+*.pem
+*.key
+*.crt
+*.cert
+
+# =================
+# 备份文件
+# =================
+*.bak
+*.backup
+*.orig
+*.save
+
+# =================
+# 临时文件
+# =================
+*.tmp
+*.temp
+
+# =================
+# 压缩文件
+# =================
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# =================
+# Node.js (如果有前端组件)
+# =================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =================
+# 监控和性能
+# =================
+prometheus_data/
+grafana_data/
+monitoring/
+
+# =================
+# 本地开发配置
+# =================
+.local/
+local_settings.py
+local_config.yaml
+
+# =================
+# IDE特定文件
+# =================
+.vscode/settings.json
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+
+# =================
+# 测试输出
+# =================
+test-results/
+test_output/
+benchmark_results/
+
+# =================
+# 发布包
+# =================
+*.whl
+*.egg
+
+# =================
+# 其他
+# =================
+.secrets
+.private
+*.secret 
