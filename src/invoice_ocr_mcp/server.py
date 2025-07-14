@@ -96,12 +96,11 @@ class InvoiceOCRServer:
                 invoice_type = await self.ocr_engine.classify_invoice_type(processed_image)
                 
                 # OCR文本识别
-                ocr_result = await self.ocr_engine.extract_text(processed_image)
+                ocr_result = await self.ocr_engine.full_ocr_pipeline(processed_image)
                 
                 # 解析发票信息
                 parsed_data = await self.invoice_parser.parse_invoice(
                     ocr_result, 
-                    invoice_type,
                     output_format
                 )
                 
@@ -214,16 +213,27 @@ class InvoiceOCRServer:
                 processed_image = await self.image_processor.preprocess_image(image)
                 
                 # 发票类型分类
-                classification_result = await self.ocr_engine.classify_invoice_type_detailed(
+                classification_result = await self.ocr_engine.classify_invoice_type(
                     processed_image
                 )
                 
-                self.logger.info(f"发票类型检测完成: {classification_result.get('invoice_type', {}).get('name')}")
-                
-                return {
-                    "success": True,
-                    "data": classification_result
+                # 格式化类型检测结果
+                result = {
+                    "invoice_type": {
+                        "code": None,
+                        "name": classification_result.get('type', 'unknown'),
+                        "confidence": classification_result.get('confidence', 0.0)
+                    },
+                    "candidates": [
+                        {
+                            "name": label,
+                            "confidence": score
+                        }
+                        for label, score in classification_result.get('all_scores', {}).items()
+                    ][:5]  # 返回前5个候选
                 }
+                
+                return result
                 
             except Exception as e:
                 self.logger.error(f"发票类型检测失败: {str(e)}", exc_info=True)
@@ -258,10 +268,9 @@ class InvoiceOCRServer:
             
             # 识别
             invoice_type = await self.ocr_engine.classify_invoice_type(processed_image)
-            ocr_result = await self.ocr_engine.extract_text(processed_image)
+            ocr_result = await self.ocr_engine.full_ocr_pipeline(processed_image)
             parsed_data = await self.invoice_parser.parse_invoice(
                 ocr_result, 
-                invoice_type,
                 "standard"
             )
             

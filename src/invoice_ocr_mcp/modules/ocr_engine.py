@@ -41,7 +41,7 @@ class OCREngine:
         
         # 初始化线程池
         self.executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=config.processing.max_workers
+            max_workers=config.processing.parallel_workers
         )
         
         # 模型缓存
@@ -88,7 +88,6 @@ class OCREngine:
             return pipeline(
                 Tasks.ocr_detection,
                 model=self.config.models.text_detection_model,
-                model_revision=self.config.models.text_detection_version,
                 device=self._get_device()
             )
         
@@ -108,7 +107,6 @@ class OCREngine:
             return pipeline(
                 Tasks.ocr_recognition,
                 model=self.config.models.text_recognition_model,
-                model_revision=self.config.models.text_recognition_version,
                 device=self._get_device()
             )
         
@@ -128,7 +126,6 @@ class OCREngine:
             return pipeline(
                 Tasks.image_classification,
                 model=self.config.models.invoice_classification_model,
-                model_revision=self.config.models.invoice_classification_version,
                 device=self._get_device()
             )
         
@@ -148,7 +145,6 @@ class OCREngine:
             return pipeline(
                 Tasks.text_classification,
                 model=self.config.models.info_extraction_model,
-                model_revision=self.config.models.info_extraction_version,
                 device=self._get_device()
             )
         
@@ -410,6 +406,10 @@ class OCREngine:
                 continue
         
         return region_images
+    
+    async def initialize(self) -> None:
+        """初始化OCR引擎（外部调用接口）"""
+        await self.initialize_models()
     
     async def cleanup(self) -> None:
         """清理资源"""

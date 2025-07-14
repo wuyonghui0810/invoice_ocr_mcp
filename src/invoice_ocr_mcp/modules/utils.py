@@ -62,10 +62,10 @@ def setup_logging(config: Any) -> logging.Logger:
     logger.addHandler(console_handler)
     
     # 文件处理器
-    if getattr(config.logging.file, 'enabled', True):
-        file_path = log_dir / getattr(config.logging.file, 'path', 'server.log')
-        max_size = getattr(config.logging.file, 'max_size', 100) * 1024 * 1024  # MB转字节
-        backup_count = getattr(config.logging.file, 'backup_count', 10)
+    if getattr(config.logging, 'enable_file_logging', True):
+        file_path = log_dir / getattr(config.logging, 'log_file', 'server.log')
+        max_size = getattr(config.logging, 'log_max_size', 100 * 1024 * 1024)  # 字节
+        backup_count = getattr(config.logging, 'log_backup_count', 10)
         
         file_handler = logging.handlers.RotatingFileHandler(
             file_path,
@@ -78,8 +78,8 @@ def setup_logging(config: Any) -> logging.Logger:
         logger.addHandler(file_handler)
     
     # 错误日志处理器
-    if getattr(config.logging.error, 'enabled', True):
-        error_file = log_dir / getattr(config.logging.error, 'path', 'error.log')
+    if getattr(config.logging, 'enable_error_logging', True):
+        error_file = log_dir / getattr(config.logging, 'error_log_file', 'error.log')
         error_handler = logging.handlers.RotatingFileHandler(
             error_file,
             maxBytes=50 * 1024 * 1024,  # 50MB

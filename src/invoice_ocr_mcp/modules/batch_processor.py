@@ -66,7 +66,7 @@ class BatchProcessor:
         self.image_processor = ImageProcessor(config)
         
         # 并发控制
-        self.semaphore = asyncio.Semaphore(config.processing.max_batch_parallel)
+        self.semaphore = asyncio.Semaphore(config.processing.parallel_workers)
         
         # 活跃任务追踪
         self.active_batches: Dict[str, List[BatchTask]] = {}
@@ -108,9 +108,9 @@ class BatchProcessor:
             
             # 设置并行数量
             if parallel_count is None:
-                parallel_count = min(self.config.processing.max_batch_parallel, len(tasks))
+                parallel_count = min(self.config.processing.parallel_workers, len(tasks))
             else:
-                parallel_count = min(parallel_count, self.config.processing.max_batch_parallel)
+                parallel_count = min(parallel_count, self.config.processing.parallel_workers)
             
             # 执行批量处理
             results = await self._execute_batch_tasks(tasks, parallel_count, output_format)
@@ -465,7 +465,7 @@ class BatchProcessor:
             "completed_tasks": completed_tasks,
             "failed_tasks": failed_tasks,
             "success_rate": round(completed_tasks / total_tasks, 3) if total_tasks > 0 else 0,
-            "max_concurrent": self.config.processing.max_batch_parallel
+            "max_concurrent": self.config.processing.parallel_workers
         }
     
     async def cleanup(self) -> None:
