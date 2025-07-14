@@ -1,0 +1,86 @@
+# ModelScope 模型配置文件
+
+models:
+  # 文本检测模型
+  text_detection:
+    name: "damo/cv_resnet18_ocr-detection-line-level_damo"
+    version: "v1.0.2"
+    cache_dir: "./cache/models/text_detection"
+    task_type: "ocr-detection"
+    description: "基于ResNet18的文本行检测模型"
+    
+  # 文本识别模型  
+  text_recognition:
+    name: "damo/cv_convnextTiny_ocr-recognition-general_damo"
+    version: "v1.0.1"
+    cache_dir: "./cache/models/text_recognition"
+    task_type: "ocr-recognition"
+    description: "基于ConvNext的通用文本识别模型"
+    
+  # 发票分类模型
+  invoice_classification:
+    name: "damo/cv_resnest50_ocr-invoice-classification"
+    version: "v1.0.0"
+    cache_dir: "./cache/models/classification"
+    task_type: "image-classification"
+    description: "基于ResNeSt50的发票类型分类模型"
+    
+  # 关键信息抽取模型
+  info_extraction:
+    name: "damo/nlp_structbert_document-classification_chinese-base"
+    version: "v1.0.0"
+    cache_dir: "./cache/models/info_extraction"
+    task_type: "text-classification"
+    description: "基于StructBERT的文档信息抽取模型"
+
+# 发票类型映射
+invoice_types:
+  "01": "增值税专用发票"
+  "03": "机动车增值税专用发票"
+  "04": "增值税普通发票"
+  "10": "增值税电子普通发票"
+  "11": "增值税普通发票（卷式）"
+  "14": "增值税普通发票（通行费）"
+  "15": "二手车发票"
+  "20": "增值税电子专用发票"
+  "99": "数电发票（增值税专用发票）"
+  "09": "数电发票（普通发票）"
+  "61": "数电发票（航空运输电子客票行程单）"
+  "83": "数电发票（铁路电子客票）"
+  "100": "区块链发票（支持深圳、北京和云南地区）"
+
+# 推理配置
+inference:
+  # GPU配置
+  gpu:
+    enabled: false
+    device_id: 0
+    memory_limit: 8192  # MB
+    
+  # 批处理配置
+  batch:
+    max_size: 32
+    timeout: 30
+    
+  # 缓存配置
+  cache:
+    enabled: true
+    max_entries: 1000
+    ttl: 3600  # 秒
+    
+# 性能优化
+optimization:
+  # 模型量化
+  quantization:
+    enabled: false
+    precision: "int8"
+    
+  # 模型并行
+  parallel:
+    enabled: true
+    num_workers: 4
+    
+  # 内存优化
+  memory:
+    enable_offload: false
+    max_memory_usage: 0.8  # 80% of available memory 

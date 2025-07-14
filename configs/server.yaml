@@ -1,0 +1,163 @@
+# Invoice OCR MCP 服务器配置
+
+server:
+  # 基本服务器设置
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  debug: false
+  
+  # 请求处理
+  max_concurrent_requests: 10
+  request_timeout: 300
+  keep_alive_timeout: 60
+  
+  # 中间件
+  middleware:
+    - cors
+    - rate_limit
+    - auth
+    - logging
+
+# 性能配置
+performance:
+  # 并发处理
+  max_batch_size: 50
+  parallel_workers: 4
+  
+  # 超时设置
+  model_inference_timeout: 30
+  image_processing_timeout: 10
+  download_timeout: 30
+  
+  # 内存管理
+  max_memory_usage: 0.8  # 80% of available memory
+  gc_interval: 100  # 每100个请求后进行垃圾回收
+
+# 缓存配置
+cache:
+  enabled: true
+  type: "memory"  # memory/redis
+  expire_time: 86400  # 24小时
+  max_entries: 10000
+  
+  # Redis配置（当type为redis时）
+  redis:
+    host: "localhost"
+    port: 6379
+    db: 0
+    password: null
+    prefix: "invoice_ocr:"
+    pool_size: 10
+
+# 安全配置
+security:
+  # API访问控制
+  api_key_required: false
+  api_key_header: "X-API-Key"
+  
+  # 跨域设置
+  cors:
+    enabled: true
+    origins: ["*"]
+    methods: ["GET", "POST", "OPTIONS"]
+    headers: ["*"]
+    
+  # 速率限制
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+    burst_size: 10
+    
+  # SSL/TLS
+  ssl:
+    enabled: false
+    cert_file: "./ssl/cert.pem"
+    key_file: "./ssl/key.pem"
+
+# 日志配置
+logging:
+  level: "INFO"
+  format: "structured"  # simple/detailed/structured
+  
+  # 文件日志
+  file:
+    enabled: true
+    path: "./logs/server.log"
+    max_size: 100  # MB
+    backup_count: 10
+    rotation: "time"  # size/time
+    
+  # 访问日志
+  access:
+    enabled: true
+    path: "./logs/access.log"
+    format: "combined"
+    
+  # 错误日志
+  error:
+    enabled: true
+    path: "./logs/error.log"
+    
+# 监控配置
+monitoring:
+  # 健康检查
+  health_check:
+    enabled: true
+    endpoint: "/health"
+    interval: 30
+    
+  # 指标收集
+  metrics:
+    enabled: false
+    endpoint: "/metrics"
+    prometheus:
+      enabled: false
+      port: 9090
+      
+  # 链路追踪
+  tracing:
+    enabled: false
+    jaeger:
+      agent_host: "localhost"
+      agent_port: 6831
+
+# 存储配置
+storage:
+  # 文件上传
+  upload:
+    max_file_size: 50  # MB
+    allowed_types: ["jpg", "jpeg", "png", "pdf", "webp"]
+    temp_dir: "./data/temp"
+    
+  # 结果存储
+  results:
+    dir: "./data/results"
+    retention_days: 30
+    format: "json"
+    
+# 队列配置
+queue:
+  # 任务队列
+  task_queue:
+    enabled: false
+    type: "memory"  # memory/redis/rabbitmq
+    max_size: 1000
+    
+  # 结果队列
+  result_queue:
+    enabled: false
+    type: "memory"
+    max_size: 1000
+
+# 开发配置
+development:
+  # 热重载
+  auto_reload: false
+  
+  # 调试工具
+  debug_toolbar: false
+  
+  # 测试模式
+  test_mode: false
+  mock_responses: false 
