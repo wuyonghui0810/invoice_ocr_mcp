@@ -1,0 +1,83 @@
+# 日志配置文件
+
+version: 1
+disable_existing_loggers: false
+
+# 格式化器
+formatters:
+  simple:
+    format: '%(levelname)s - %(message)s'
+  
+  detailed:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+  
+  structured:
+    class: invoice_ocr_mcp.modules.utils.StructuredFormatter
+
+# 处理器
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: detailed
+    stream: ext://sys.stdout
+  
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: ./logs/server.log
+    maxBytes: 104857600  # 100MB
+    backupCount: 10
+    encoding: utf-8
+  
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: ./logs/error.log
+    maxBytes: 52428800  # 50MB
+    backupCount: 5
+    encoding: utf-8
+  
+  access_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: structured
+    filename: ./logs/access.log
+    maxBytes: 104857600  # 100MB
+    backupCount: 10
+    encoding: utf-8
+
+# 记录器
+loggers:
+  invoice_ocr_mcp:
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+  
+  invoice_ocr_mcp.modules.ocr_engine:
+    level: DEBUG
+    handlers: [file]
+    propagate: true
+  
+  invoice_ocr_mcp.modules.batch_processor:
+    level: INFO
+    handlers: [file]
+    propagate: true
+  
+  access:
+    level: INFO
+    handlers: [access_file]
+    propagate: false
+  
+  modelscope:
+    level: WARNING
+    handlers: [file]
+    propagate: false
+
+# 根记录器
+root:
+  level: WARNING
+  handlers: [console] 
