@@ -134,7 +134,7 @@ result = await session.call_tool(
 如有问题，请通过以下方式联系：
 
 - GitHub Issues
-- 邮箱: support@example.com
+- 邮箱: wuyonghui0810@126.com
 
 ---
 
