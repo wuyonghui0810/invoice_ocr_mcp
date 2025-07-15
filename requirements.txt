@@ -3,8 +3,6 @@ mcp>=1.0.0
 
 # ModelScope依赖
 modelscope>=1.28.0
-modelscope[cv]>=1.28.0
-modelscope[nlp]>=1.28.0
 
 # 图像处理依赖
 opencv-python>=4.8.0
