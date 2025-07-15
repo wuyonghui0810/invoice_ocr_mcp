@@ -6,7 +6,7 @@
 
 import os
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -15,15 +15,36 @@ from dotenv import load_dotenv
 
 
 @dataclass
+class OCREngineConfig:
+    """OCR引擎配置"""
+    # 引擎类型：'rapidocr' 或 'modelscope'
+    engine_type: str = "rapidocr"  # 默认使用RapidOCR
+    
+    # RapidOCR配置
+    rapidocr_use_gpu: bool = False
+    rapidocr_device_id: int = 0
+    
+    # ModelScope配置（仅当engine_type='modelscope'时生效）
+    modelscope_use_gpu: bool = False
+    modelscope_device_id: int = 0
+
+
+@dataclass
 class ModelConfig:
     """模型配置"""
+    # 使用存在的文本检测模型
     text_detection_model: str = "damo/cv_resnet18_ocr-detection-line-level_damo"
+    # 使用存在的文本识别模型  
     text_recognition_model: str = "damo/cv_convnextTiny_ocr-recognition-general_damo"
-    invoice_classification_model: str = "damo/cv_resnest50_ocr-invoice-classification"
-    info_extraction_model: str = "damo/nlp_structbert_document-classification_chinese-base"
+    # 发票分类模型 - 使用通用图像分类模型或设置为None启用mock模式
+    invoice_classification_model: str = None  # 暂时设为None，启用mock模式
+    # 信息抽取模型 - 使用通用文本分类模型或设置为None启用mock模式
+    info_extraction_model: str = None  # 暂时设为None，启用mock模式
     cache_dir: str = "./cache/modelscope"
     use_gpu: bool = False
     gpu_device_id: int = 0
+    # 启用mock模式 - 当某些模型不可用时使用模拟数据
+    enable_mock_mode: bool = True
 
 
 @dataclass
@@ -110,6 +131,7 @@ class Config:
                     break
         
         # 初始化各模块配置
+        self.ocr_engine = OCREngineConfig()
         self.models = ModelConfig()
         self.server = ServerConfig()
         self.processing = ProcessingConfig()

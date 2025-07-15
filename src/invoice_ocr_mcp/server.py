@@ -36,7 +36,8 @@ class InvoiceOCRServer:
         self.logger = setup_logging(self.config)
         
         # 初始化核心组件
-        self.ocr_engine = OCREngine(self.config)
+        from .modules.ocr_engine import create_ocr_engine
+        self.ocr_engine = create_ocr_engine(self.config)
         self.invoice_parser = InvoiceParser(self.config)
         self.image_processor = ImageProcessor(self.config)
         self.batch_processor = BatchProcessor(self.config)
@@ -196,10 +197,13 @@ class InvoiceOCRServer:
         processed_image = await self.image_processor.preprocess_image(image)
         
         # 发票类型识别
-        invoice_type = await self.ocr_engine.classify_invoice_type(processed_image)
+        invoice_type_result = await self.ocr_engine.classify_invoice_type(processed_image)
         
         # OCR文本识别
         ocr_result = await self.ocr_engine.full_ocr_pipeline(processed_image)
+        
+        # 将发票类型信息合并到OCR结果中
+        ocr_result['invoice_classification'] = invoice_type_result
         
         # 解析发票信息
         parsed_data = await self.invoice_parser.parse_invoice(
@@ -207,12 +211,44 @@ class InvoiceOCRServer:
             output_format
         )
         
-        self.logger.info(f"单张发票识别完成，类型: {invoice_type.get('name')}")
+        # 添加发票类型到返回结果
+        if parsed_data and isinstance(parsed_data, dict):
+            # 更新发票类型信息，使其包含更详细的分类结果
+            parsed_data['invoice_type'] = {
+                'code': None,
+                'name': self._get_invoice_type_name(invoice_type_result.get('type', 'unknown')),
+                'confidence': invoice_type_result.get('confidence', 0.0),
+                'raw_type': invoice_type_result.get('type', 'unknown')
+            }
+            
+            # 添加检测的关键词和识别文本区域
+            parsed_data['detected_keywords'] = invoice_type_result.get('detected_keywords', [])
+            parsed_data['text_regions'] = ocr_result.get('text_regions', [])
+            parsed_data['extracted_info'] = parsed_data.get('basic_info', {})
+            parsed_data['confidence'] = invoice_type_result.get('confidence', 0.0)
+        
+        self.logger.info(f"单张发票识别完成，类型: {invoice_type_result.get('type')}")
         
         return {
             "success": True,
             "data": parsed_data
         }
+    
+    def _get_invoice_type_name(self, type_code: str) -> str:
+        """将发票类型代码转换为中文名称"""
+        type_mapping = {
+            "general_invoice": "增值税普通发票",
+            "vat_invoice": "增值税专用发票", 
+            "electronic_invoice": "电子发票",
+            "receipt": "收据",
+            "train_ticket": "火车票",
+            "taxi_ticket": "出租车票",
+            "air_ticket": "机票",
+            "hotel_invoice": "住宿发票",
+            "catering_invoice": "餐饮发票",
+            "unknown": "未知类型"
+        }
+        return type_mapping.get(type_code, "未知类型")
     
     async def _recognize_batch_invoices(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """批量识别发票"""
@@ -222,30 +258,40 @@ class InvoiceOCRServer:
         self.logger.info(f"收到批量发票识别请求，共 {len(images)} 张图片")
         
         # 验证输入参数
-        validation_error = validate_batch_input(images, parallel_count)
-        if validation_error:
-            return validation_error
+        validation_result = validate_batch_input(images)
+        if not validation_result["valid"]:
+            return format_error_response(
+                "INVALID_INPUT",
+                validation_result["error"],
+                validation_result.get("details")
+            )
         
         # 批量处理
-        results = await self.batch_processor.process_batch(
+        batch_result = await self.batch_processor.process_batch(
             images,
             parallel_count,
-            self._process_single_image
+            "standard"
         )
         
-        # 统计结果
-        success_count = len([r for r in results if r.get("status") == "success"])
-        failed_count = len(results) - success_count
+        # 检查批量处理结果
+        if not batch_result.get("success"):
+            return format_error_response(
+                "BATCH_PROCESSING_ERROR",
+                batch_result.get("error", "批量处理失败")
+            )
         
-        self.logger.info(f"批量识别完成，成功: {success_count}, 失败: {failed_count}")
+        results = batch_result.get("results", [])
+        statistics = batch_result.get("statistics", {})
+        
+        self.logger.info(f"批量识别完成，成功: {statistics.get('successful', 0)}/{statistics.get('total', 0)}")
         
         return {
             "success": True,
             "data": {
+                "batch_id": batch_result.get("batch_id"),
                 "total_count": len(images),
-                "success_count": success_count,
-                "failed_count": failed_count,
-                "results": results
+                "results": results,
+                "statistics": statistics
             }
         }
     
@@ -295,7 +341,9 @@ class InvoiceOCRServer:
                     "confidence": score
                 }
                 for label, score in classification_result.get('all_scores', {}).items()
-            ][:5]  # 返回前5个候选
+            ][:5],  # 返回前5个候选
+            "detected_keywords": classification_result.get('detected_keywords', []),
+            "ocr_text": classification_result.get('ocr_text', '')
         }
         
         return {
