@@ -164,11 +164,11 @@ async def demo_invoice_recognition():
                     analysis = analyze_text_content(text)
                     if analysis:
                         print(f"     {i}. {text} → {analysis} (置信度: {confidence:.3f})")
-                    elif i <= 10:  # 只显示前10个普通文本
+                    elif i <= 20:  # 只显示前10个普通文本
                         print(f"     {i}. {text} (置信度: {confidence:.3f})")
                 
-                if len(text_regions) > 10:
-                    print(f"     ... 还有 {len(text_regions) - 10} 个文本区域")
+                if len(text_regions) > 20:
+                    print(f"     ... 还有 {len(text_regions) - 20} 个文本区域")
             else:
                 print(f"     ⚠️  未识别到文本内容")
                 
@@ -178,52 +178,52 @@ async def demo_invoice_recognition():
         print()
         
         # 3. 测试批量识别（单张）
-        print("🔄 批量发票识别")
-        print("-" * 30)
+        # print("🔄 批量发票识别")
+        # print("-" * 30)
         
-        batch_args = {
-            "images": [
-                {
-                    "id": "test_invoice_001",
-                    "image_data": image_base64
-                }
-            ],
-            "parallel_count": 1,
-            "output_format": "standard"
-        }
+        # batch_args = {
+        #     "images": [
+        #         {
+        #             "id": "test_invoice_001",
+        #             "image_data": image_base64
+        #         }
+        #     ],
+        #     "parallel_count": 1,
+        #     "output_format": "standard"
+        # }
         
-        batch_result = await server._recognize_batch_invoices(batch_args)
+        # batch_result = await server._recognize_batch_invoices(batch_args)
         
-        if batch_result.get("success"):
-            data = batch_result["data"]
-            statistics = data.get("statistics", {})
-            results = data.get("results", [])
+        # if batch_result.get("success"):
+        #     data = batch_result["data"]
+        #     statistics = data.get("statistics", {})
+        #     results = data.get("results", [])
             
-            print(f"✅ 批量识别完成!")
-            print(f"   总数量: {statistics.get('total_count', 0)}")
-            print(f"   成功: {statistics.get('success_count', 0)}")
-            print(f"   失败: {statistics.get('failed_count', 0)}")
-            print(f"   处理时间: {statistics.get('total_time', 0):.2f}秒")
+        #     print(f"✅ 批量识别完成!")
+        #     print(f"   总数量: {statistics.get('total_count', 0)}")
+        #     print(f"   成功: {statistics.get('success_count', 0)}")
+        #     print(f"   失败: {statistics.get('failed_count', 0)}")
+        #     print(f"   处理时间: {statistics.get('total_time', 0):.2f}秒")
             
-            if results:
-                result = results[0]
-                if result.get("success"):
-                    invoice_data = result.get("data", {})
-                    print(f"   识别结果:")
-                    print(f"     类型: {invoice_data.get('invoice_type')}")
-                    print(f"     置信度: {invoice_data.get('confidence', 0):.3f}")
+        #     if results:
+        #         result = results[0]
+        #         if result.get("success"):
+        #             invoice_data = result.get("data", {})
+        #             print(f"   识别结果:")
+        #             print(f"     类型: {invoice_data.get('invoice_type')}")
+        #             print(f"     置信度: {invoice_data.get('confidence', 0):.3f}")
                     
-                    basic_info = invoice_data.get('basic_info', {})
-                    if basic_info:
-                        print(f"     基本信息:")
-                        for key, value in basic_info.items():
-                            print(f"       {key}: {value}")
+        #             basic_info = invoice_data.get('basic_info', {})
+        #             if basic_info:
+        #                 print(f"     基本信息:")
+        #                 for key, value in basic_info.items():
+        #                     print(f"       {key}: {value}")
                 
-        else:
-            print(f"❌ 批量识别失败: {batch_result.get('error')}")
+        # else:
+        #     print(f"❌ 批量识别失败: {batch_result.get('error')}")
         
-        print()
-        print("🎉 演示完成!")
+        # print()
+        # print("🎉 演示完成!")
         
     except Exception as e:
         print(f"❌ 演示过程中发生错误: {e}")
@@ -239,7 +239,7 @@ async def demo_invoice_recognition():
 async def main():
     """主函数"""
     print("=" * 60)
-    print("🌟 RapidOCR发票识别系统演示")
+    print("🌟 发票识别系统演示")
     print("=" * 60)
     print()
     
@@ -248,14 +248,5 @@ async def main():
     print()
     print("=" * 60)
     print("✨ 演示结束!")
-    print()
-    print("💡 RapidOCR优势:")
-    print("   • 轻量级：无需大量依赖，快速部署")
-    print("   • 高性能：启动快速，识别准确")
-    print("   • 离线运行：完全本地化，保护数据隐私")
-    print("   • 易集成：简单API，方便二次开发")
-    print("=" * 60)
-
-
 if __name__ == "__main__":
     asyncio.run(main()) 

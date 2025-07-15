@@ -22,9 +22,8 @@ jsonschema>=4.0.0
 # 缓存依赖
 cachetools>=5.3.0
 
-# OCR引擎依赖 - 推荐使用RapidOCR
-rapidocr-onnxruntime>=1.4.4  # 推荐：轻量级、高性能OCR引擎（最新版本）
-onnxruntime>=1.15.0
+# OCR引擎依赖 - 仅保留RapidOCR v3.2.0
+rapidocr==3.2.0  # 推荐：轻量级、高性能OCR引擎（仅保留此项）
 
 # ModelScope依赖（可选，仅在使用ModelScope引擎时需要）
 # modelscope>=1.28.0

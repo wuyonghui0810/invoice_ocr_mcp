@@ -14,7 +14,7 @@ from enum import Enum
 import traceback
 
 from ..config import Config
-from .ocr_engine import OCREngine
+from .ocr_engine import create_ocr_engine
 from .invoice_parser import InvoiceParser
 from .image_processor import ImageProcessor
 from .validators import validate_image_data
@@ -61,7 +61,7 @@ class BatchProcessor:
         self.logger = logging.getLogger(__name__)
         
         # 初始化依赖组件
-        self.ocr_engine = OCREngine(config)
+        self.ocr_engine = create_ocr_engine(config)
         self.invoice_parser = InvoiceParser(config)
         self.image_processor = ImageProcessor(config)
         

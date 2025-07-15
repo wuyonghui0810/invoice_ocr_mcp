@@ -14,7 +14,6 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 from .config import Config
-from .modules.ocr_engine import OCREngine
 from .modules.invoice_parser import InvoiceParser
 from .modules.image_processor import ImageProcessor
 from .modules.batch_processor import BatchProcessor
