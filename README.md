@@ -105,20 +105,13 @@ result = await session.call_tool(
 ```
 
 ## 🔧 配置说明
-```
+```json
 {
   "mcpServers": {
     "invoice_ocr_mcp": {
       "command": "npx",
       "args": ["node", "start-python.js"],
       "env": {
-        "ENGINE_TYPE": "rapidocr",
-        "USE_GPU": "false",
-        "LOG_LEVEL": "INFO",
-        "MAX_BATCH_SIZE": "10",
-        "PORT": "8000",
-        "LOG_DIR": "/mnt/logs",
-        "CACHE_DIR": "/mnt/cache"
       }
     }
   }
@@ -155,7 +148,7 @@ result = await session.call_tool(
 如有问题，请通过以下方式联系：
 
 - GitHub Issues
-- 邮箱: support@example.com
+- 邮箱: wuyonghui0810@126.com
 
 ---
 
