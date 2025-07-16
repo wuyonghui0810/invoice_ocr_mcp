@@ -38,7 +38,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-org/invoice-ocr-mcp.git
+git clone https://github.com/wuyonghui0810/invoice-ocr-mcp.git
 cd invoice-ocr-mcp
 
 # 创建虚拟环境
