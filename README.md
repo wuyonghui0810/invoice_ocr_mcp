@@ -25,108 +25,45 @@
 - 12: 数电发票（铁路电子客票）
 - 13: 区块链发票（支持深圳、北京和云南地区）
 
-## 🛠️ 安装指南
+## 🛠️ 安装与启动
 
 ### 环境要求
 
 - Python 3.8+
-- ModelScope账号和API Token
 - 至少4GB内存
-- GPU支持（推荐）
+- 推荐GPU支持
 
-### 快速安装
-
-```bash
-# 克隆项目
-git clone https://github.com/wuyonghui0810/invoice-ocr-mcp.git
-cd invoice-ocr-mcp
-
-# 创建虚拟环境
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 文件，添加你的 ModelScope API Token
-```
-
-### Docker部署
+### 快速开始
 
 ```bash
-# 构建镜像
-docker-compose build
+# 推荐方式：通过PyPI安装
+pip install invoice-ocr-mcp
 
 # 启动服务
-docker-compose up -d
+invoice-ocr-mcp
 ```
 
-## 📖 使用指南
+## ⚡ MCP平台集成配置（uvx示例）
 
-### MCP客户端集成
+如需在 MCP 平台集成本服务，推荐使用如下 mcpServers 配置：
 
-```python
-import asyncio
-from mcp.client.session import ClientSession
-from mcp.client.stdio import stdio_client
-
-async def main():
-    async with stdio_client(["python", "src/invoice_ocr_mcp/server.py"]) as streams:
-        async with ClientSession(streams[0], streams[1]) as session:
-            await session.initialize()
-            
-            # 识别单张发票
-            result = await session.call_tool(
-                "recognize_single_invoice",
-                {"image_data": "base64_encoded_image_data"}
-            )
-            print("识别结果:", result)
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-### 批量处理
-
-```python
-# 批量识别发票
-result = await session.call_tool(
-    "recognize_batch_invoices",
-    {
-        "images": [
-            {"id": "invoice1", "image_data": "base64_data1"},
-            {"id": "invoice2", "image_data": "base64_data2"}
-        ],
-        "parallel_count": 3
-    }
-)
-```
-
-## 🔧 配置说明
 ```json
 {
   "mcpServers": {
-    "invoice_ocr_mcp": {
-      "command": "npx",
-      "args": ["node", "start-python.js"],
+    "invoice-ocr-mcp": {
+      "command": "uvx",
+      "args": [
+        "invoice-ocr-mcp"
+      ],
       "env": {
+        "PYTHONUNBUFFERED": "1"
       }
     }
   }
 }
 ```
 
-## 🔧 配置说明
-
-主要配置文件位于 `configs/` 目录：
-
-- `models.yaml`: ModelScope模型配置
-- `server.yaml`: 服务器配置
-- `logging.yaml`: 日志配置
-
-详细配置说明请参考 [部署指南](docs/deployment.md)
+- 如需自定义环境变量，可在 env 字段补充。
 
 ## 📊 性能指标
 
@@ -134,22 +71,5 @@ result = await session.call_tool(
 - **处理速度**: 单张发票<3秒
 - **并发支持**: 支持多线程并行处理
 - **服务可用性**: >99.9%
-
-## 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request！
-
-## 📄 许可证
-
-本项目基于 MIT 许可证开源。
-
-## 📞 技术支持
-
-如有问题，请通过以下方式联系：
-
-- GitHub Issues
-- 邮箱: wuyonghui0810@126.com
-
----
 
 © 2024 Invoice OCR MCP Server. All rights reserved. 

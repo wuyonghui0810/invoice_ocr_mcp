@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "invoice-ocr-mcp"
-version = "1.0.0"
+version = "1.0.1"
 description = "企业发票OCR识别MCP服务器 - 基于ModelScope的专业发票识别解决方案"
 authors = [
     {name = "Invoice OCR Team", email = "team@example.com"},
