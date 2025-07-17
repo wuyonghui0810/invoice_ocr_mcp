@@ -192,10 +192,10 @@ class Config:
     
     def load_from_env(self) -> None:
         """从环境变量加载配置"""
-        # ModelScope配置
-        self.modelscope_api_token = os.getenv("MODELSCOPE_API_TOKEN")
-        if not self.modelscope_api_token:
-            logging.warning("未设置MODELSCOPE_API_TOKEN环境变量")
+        # ModelScope配置（本地模式下可忽略）
+        # self.modelscope_api_token = os.getenv("MODELSCOPE_API_TOKEN")
+        # if not self.modelscope_api_token:
+        #     logging.warning("未设置MODELSCOPE_API_TOKEN环境变量")
         
         # 模型配置
         if os.getenv("TEXT_DETECTION_MODEL"):
@@ -283,9 +283,9 @@ class Config:
         """验证配置"""
         errors = []
         
-        # 验证必需的配置
-        if not self.modelscope_api_token:
-            errors.append("缺少ModelScope API Token")
+        # 本地模式下无需ModelScope API Token
+        # if not self.modelscope_api_token:
+        #     errors.append("缺少ModelScope API Token")
         
         # 验证端口范围
         if not (1 <= self.server.port <= 65535):

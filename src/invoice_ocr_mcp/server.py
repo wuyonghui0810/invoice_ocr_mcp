@@ -399,5 +399,11 @@ async def main():
         sys.exit(1)
 
 
+def cli_main():
+    """命令行入口函数，负责调度异步主函数"""
+    import asyncio
+    asyncio.run(main())
+
+
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    cli_main() 
